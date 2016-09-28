@@ -1,4 +1,4 @@
-package gopidfile
+package pidfile
 
 import (
 	"io/ioutil"
