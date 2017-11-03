@@ -9,15 +9,16 @@ import (
 )
 
 func TestReadWritePidFile(t *testing.T) {
+	pidfile := createPidFile(t)
 	pid := NewPid(os.Getpid())
 	file := NewFile("./pidfiletest.pid")
 
-	err := WritePidToFile(file, pid)
+	err := pidfile.WritePidToFile(file, pid)
 	if err != nil {
 		t.Fatalf("write pid %s to file %s failed, error: %s", pid.Id, file.Path, err.Error())
 	}
 
-	fpid, err := ReadPidFromFile(file)
+	fpid, err := pidfile.ReadPidFromFile(file)
 	if err != nil {
 		t.Fatalf("read pid from file %s failed, error: %s", file.Path, err.Error())
 	}
@@ -60,7 +61,7 @@ func TestCrossCreateOrClearPidFile(t *testing.T) {
 		waitSignal(sc)
 
 		// read child process pid from tmp file
-		tmpPid, err := ReadPidFromFile(NewFile("./pidfiletest.pid.tmp"))
+		tmpPid, err := pidfile.ReadPidFromFile(NewFile("./pidfiletest.pid.tmp"))
 		if err != nil || !tmpPid.ProcessExist() {
 			t.Fatalf("read pid of child process failed, error: %s, isChildProcess: %v", err.Error(), isChildProcess)
 		}
@@ -91,7 +92,7 @@ func createPidFile(t *testing.T) *PidFile {
 func clearPidFile(pidfile *PidFile, t *testing.T) {
 	err := ClearPidFile(pidfile)
 	if err != nil {
-		t.Fatalf("clear pid file %s failed, error: %s", pidfile.Path, err.Error())
+		t.Fatalf("clear pid file %s failed, error: %s", pidfile.File.Path, err.Error())
 	}
 }
 
