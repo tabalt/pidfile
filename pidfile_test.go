@@ -15,7 +15,7 @@ func TestReadWritePidFile(t *testing.T) {
 
 	err := pidfile.WritePidToFile(file, pid)
 	if err != nil {
-		t.Fatalf("write pid %s to file %s failed, error: %s", pid.Id, file.Path, err.Error())
+		t.Fatalf("write pid %d to file %s failed, error: %s", pid.Id, file.Path, err.Error())
 	}
 
 	fpid, err := pidfile.ReadPidFromFile(file)
@@ -24,11 +24,11 @@ func TestReadWritePidFile(t *testing.T) {
 	}
 
 	if fpid.Id != pid.Id {
-		t.Fatalf("read pid error, expect %s got %s", pid.Id, fpid.Id)
+		t.Fatalf("read pid error, expect %d got %d", pid.Id, fpid.Id)
 	}
 
 	if !fpid.ProcessExist() {
-		t.Fatalf("process with pid %s not exist", fpid.Id)
+		t.Fatalf("process with pid %d not exist", fpid.Id)
 	}
 
 	if err = file.Remove(); err != nil {
@@ -82,7 +82,7 @@ func TestCrossCreateOrClearPidFile(t *testing.T) {
 
 func createPidFile(t *testing.T) *PidFile {
 	path := "./pidfiletest.pid"
-	pidfile, err := CreatePidFile(path)
+	pidfile, err := Create(path)
 	if err != nil {
 		t.Fatalf("create pid file %s failed, error: %s", path, err.Error())
 	}
@@ -90,7 +90,7 @@ func createPidFile(t *testing.T) *PidFile {
 }
 
 func clearPidFile(pidfile *PidFile, t *testing.T) {
-	err := ClearPidFile(pidfile)
+	err := pidfile.Clear()
 	if err != nil {
 		t.Fatalf("clear pid file %s failed, error: %s", pidfile.File.Path, err.Error())
 	}
@@ -104,11 +104,11 @@ func waitSignal(sc chan os.Signal) {
 func sendSignal(pid int, isChildProcess bool, t *testing.T) {
 	process, err := os.FindProcess(pid)
 	if err != nil {
-		t.Fatalf("find process by pid %s failed, error: %s, isChildProcess: %v", pid, err.Error(), isChildProcess)
+		t.Fatalf("find process by pid %d failed, error: %s, isChildProcess: %v", pid, err.Error(), isChildProcess)
 	}
 
 	err = process.Signal(syscall.SIGUSR1)
 	if err != nil {
-		t.Fatalf("send signal to process with pid %s failed, error: %s, isChildProcess: %v", pid, err.Error(), isChildProcess)
+		t.Fatalf("send signal to process with pid %d failed, error: %s, isChildProcess: %v", pid, err.Error(), isChildProcess)
 	}
 }
